@@ -11,14 +11,14 @@ import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import { HeartIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import MovieList from "../components/movieList";
+import MovieList from "../components/MovieList";
 import {
   fallbackPersonImage,
   fetchPersonDetails,
   fetchPersonMovies,
   image342,
 } from "../api/moviedb";
-import Loading from "../components/loading";
+import Loading from "../components/Loading";
 
 const { width, height } = Dimensions.get("window");
 
@@ -157,7 +157,9 @@ export default function PersonScreen() {
                 borderColor: "rgb(115 115 115)",
               }}
             >
-              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>Gender</Text>
+              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>
+                Gender
+              </Text>
               <Text
                 style={{
                   color: "rgb(245 245 245)",
@@ -177,7 +179,9 @@ export default function PersonScreen() {
                 borderColor: "rgb(115 115 115)",
               }}
             >
-              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>Birthday</Text>
+              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>
+                Birthday
+              </Text>
               <Text
                 style={{
                   color: "rgb(245 245 245)",
@@ -197,7 +201,9 @@ export default function PersonScreen() {
                 borderColor: "rgb(115 115 115)",
               }}
             >
-              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>Known for</Text>
+              <Text style={{ color: "rgb(245 245 245)", fontWeight: 600 }}>
+                Known for
+              </Text>
               <Text
                 style={{
                   color: "rgb(245 245 245)",

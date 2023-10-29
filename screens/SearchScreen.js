@@ -1,40 +1,45 @@
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   Image,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Dimensions,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { XMarkIcon } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
-import { fallbackMoviePoster, image185, searchMovies } from "../api/moviedb";
+import { searchMovies } from "../api/moviedb";
 import { debounce } from "lodash";
-import Loading from "../components/loading";
-
-const { width, height } = Dimensions.get("window");
+import { theme } from "../theme";
+import Loading from "../components/Loading";
+import { MovieCard } from "../components/MovieCard";
 
 export default function SearchScreen() {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
 
-  const handleSearch = (search) => {
+  const handleSearch = async (search) => {
     if (search && search.length > 2) {
-      setLoading(true);
-      searchMovies({
-        query: search,
-        include_adult: false,
-        language: "en-US",
-        page: "1",
-      }).then((data) => {
+      try {
+        setLoading(true);
+        const searchMovieResults = await searchMovies({
+          query: search,
+          include_adult: false,
+          language: "en-US",
+          page: "1",
+        });
+        if (searchMovieResults?.results) {
+          setLoading(false);
+          setResults(searchMovieResults?.results);
+        }
+      } catch (error) {
         setLoading(false);
-        if (data && data.results) setResults(data.results);
-      });
+        setResults([]);
+      }
     } else {
       setLoading(false);
       setResults([]);
@@ -43,21 +48,27 @@ export default function SearchScreen() {
 
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
+  const handleMoviePosterClick = (item) => {
+    navigation.navigate("Movie", item);
+  };
+
   return (
-    <SafeAreaView className="bg-neutral-800 flex-1">
+    <SafeAreaView style={styles.safeAreaView}>
       {/* search input */}
-      <View className="mx-4 mb-3 flex-row justify-between items-center border border-neutral-500 rounded-full">
+      <View style={styles.searchInputContainer}>
         <TextInput
           onChangeText={handleTextDebounce}
           placeholder="Search Movie"
-          placeholderTextColor={"lightgray"}
-          className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
+          placeholderTextColor="black"
+          autoFocus={true}
+          autoComplete="off"
+          style={styles.searchInput}
         />
         <TouchableOpacity
           onPress={() => navigation.navigate("Home")}
-          className="rounded-full p-3 m-1 bg-neutral-500"
+          style={styles.closeButton}
         >
-          <XMarkIcon size="25" color="white" />
+          <XMarkIcon size={25} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -65,49 +76,80 @@ export default function SearchScreen() {
       {loading ? (
         <Loading />
       ) : results.length > 0 ? (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 15 }}
-          className="space-y-3"
-        >
-          <Text className="text-white font-semibold ml-1">
-            Results ({results.length})
-          </Text>
-          <View className="flex-row justify-between flex-wrap">
-            {results.map((item, index) => {
-              return (
-                <TouchableWithoutFeedback
-                  key={index}
-                  onPress={() => navigation.push("Movie", item)}
-                >
-                  <View className="space-y-2 mb-4">
-                    <Image
-                      source={{
-                        uri: image185(item.poster_path) || fallbackMoviePoster,
-                      }}
-                      // source={require('../assets/images/moviePoster2.png')}
-                      className="rounded-3xl"
-                      style={{ width: width * 0.44, height: height * 0.3 }}
-                    />
-                    <Text className="text-gray-300 ml-1">
-                      {item.title.length > 22
-                        ? item.title.slice(0, 22) + "..."
-                        : item.title}
-                    </Text>
-                  </View>
-                </TouchableWithoutFeedback>
-              );
-            })}
-          </View>
-        </ScrollView>
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          renderItem={({ item }) => (
+            <MovieCard handleClick={handleMoviePosterClick} item={item} />
+          )}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={<ActivityIndicator size="large" />}
+        />
       ) : (
-        <View className="flex-row justify-center">
+        <View style={styles.resultContainer}>
           <Image
             source={require("../assets/images/movieTime.png")}
-            className="h-96 w-96"
+            style={styles.loadingImage}
           />
         </View>
       )}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeAreaView: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
+  searchInputContainer: {
+    margin: 16,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgb(115 115 115)",
+    borderRadius: 20,
+  },
+  searchInput: {
+    flex: 1,
+    paddingLeft: 16,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    letterSpacing: 1.5,
+  },
+  closeButton: {
+    borderRadius: 50,
+    padding: 12,
+    margin: 4,
+    backgroundColor: "rgb(115 115 115)",
+  },
+  resultsText: {
+    color: "black",
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
+  scrollViewContent: {
+    paddingHorizontal: 15,
+  },
+  resultContainer: {
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  resultImage: {
+    width: 200,
+    height: 300,
+    borderRadius: 20,
+  },
+  resultText: {
+    color: "black",
+    marginLeft: 5,
+  },
+  loadingImage: {
+    height: 96,
+    width: 96,
+  },
+});

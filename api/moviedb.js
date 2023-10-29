@@ -3,11 +3,11 @@ import { apiKey } from "../constants";
 
 // endpoints
 const apiBaseUrl = "https://api.themoviedb.org/3";
-const fetchMoviesEndpoint = `${apiBaseUrl}/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=1&vote_count_gte=100&include_video=true`;
-const searchMoviesEndpoint = `${apiBaseUrl}/search/movie?api_key=${apiKey}&sort_by=popularity.desc&page=1&vote_count_gte=100&include_video=true`;
+const fetchMoviesEndpoint = `${apiBaseUrl}/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=1&vote_count_gte=100`;
+const searchMoviesEndpoint = `${apiBaseUrl}/search/movie?api_key=${apiKey}`;
+const genreEndpoint = `${apiBaseUrl}/genre/movie/list?api_key=${apiKey}`;
 
 // endpoints with dynamic params
-
 // movie
 const movieDetailsEndpoint = (id) =>
   `${apiBaseUrl}/movie/${id}?api_key=${apiKey}`;
@@ -36,10 +36,13 @@ export const fallbackMoviePoster =
 export const fallbackPersonImage =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmUiF-YGjavA63_Au8jQj7zxnFxS_Ay9xc6pxleMqCxH92SzeNSjBTwZ0l61E4B3KTS7o&usqp=CAU";
 
-const apiCall = async (endpoint, fetchYear, params) => {
+const apiCall = async ({ endpoint, genre, fetchYear, params }) => {
+  const yearAndGenres =
+    (fetchYear ? `&primary_release_year=${fetchYear}` : "") +
+    (genre ? `&with_genres=${genre}` : "");
   const options = {
     method: "GET",
-    url: endpoint + `&primary_release_year=${fetchYear}`,
+    url: endpoint + yearAndGenres.trim(),
     params: params ? params : {},
   };
   try {
@@ -51,30 +54,35 @@ const apiCall = async (endpoint, fetchYear, params) => {
 };
 
 // home screen apis
-export const fetchMoviesList = (fetchYear) => {
-  return apiCall(fetchMoviesEndpoint, fetchYear);
+export const fetchMoviesList = ({ fetchYear, genre }) => {
+  return apiCall({ endpoint: fetchMoviesEndpoint, genre, fetchYear });
 };
 
 // movie screen apis
 export const fetchMovieDetails = (id) => {
-  return apiCall(movieDetailsEndpoint(id));
+  return apiCall({ endpoint: movieDetailsEndpoint(id) });
 };
 export const fetchMovieCredits = (movieId) => {
-  return apiCall(movieCreditsEndpoint(movieId));
+  return apiCall({ endpoint: movieCreditsEndpoint(movieId) });
 };
 export const fetchSimilarMovies = (movieId) => {
-  return apiCall(similarMoviesEndpoint(movieId));
+  return apiCall({ endpoint: similarMoviesEndpoint(movieId) });
 };
 
 // person screen apis
 export const fetchPersonDetails = (personId) => {
-  return apiCall(personDetailsEndpoint(personId));
+  return apiCall({ endpoint: personDetailsEndpoint(personId) });
 };
 export const fetchPersonMovies = (personId) => {
-  return apiCall(personMoviesEndpoint(personId));
+  return apiCall({ endpoint: personMoviesEndpoint(personId) });
 };
 
 // search screen apis
 export const searchMovies = (params) => {
-  return apiCall(searchMoviesEndpoint, params);
+  return apiCall({ endpoint: searchMoviesEndpoint, params });
+};
+
+// genre apis
+export const fetchGenres = async () => {
+  return apiCall({ endpoint: genreEndpoint });
 };

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app-ui",
-    "slug": "app-ui",
+    "name": "Movieflix",
+    "slug": "Movieflix",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,7 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "**/*"
+      "**/*", "**/*.jsx", "**/*.js"
     ],
     "ios": {
       "supportsTablet": true

@@ -14,8 +14,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import { HeartIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Cast from "../components/cast";
-import MovieList from "../components/movieList";
+import Cast from "../components/Cast";
+import MovieList from "../components/MovieList";
 import {
   fallbackMoviePoster,
   fetchMovieCredits,
@@ -23,7 +23,7 @@ import {
   fetchSimilarMovies,
   image500,
 } from "../api/moviedb";
-import Loading from "../components/loading";
+import Loading from "../components/Loading";
 
 const ios = Platform.OS == "ios";
 var { width, height } = Dimensions.get("window");
@@ -69,11 +69,11 @@ export default function MovieScreen() {
       style={{ backgroundColor: "#C2DBD8", flex: 1 }}
     >
       {/* back button and movie poster */}
-      <View className="w-full">
+      <SafeAreaView>
         <SafeAreaView
           style={{
             position: "absolute",
-            zIndex: 20,
+            zIndex: 10,
             width: "100%",
             flexDirection: "row",
             justifyContent: "space-between",
@@ -92,10 +92,7 @@ export default function MovieScreen() {
             <ChevronLeftIcon size="28" strokeWidth={2.5} color="black" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleFavourite(!isFavourite)}>
-            <HeartIcon
-              size="35"
-              color={isFavourite ? "red" : "white"}
-            />
+            <HeartIcon size="35" color={isFavourite ? "red" : "white"} />
           </TouchableOpacity>
         </SafeAreaView>
         {loading ? (
@@ -121,7 +118,7 @@ export default function MovieScreen() {
             />
           </View>
         )}
-      </View>
+      </SafeAreaView>
 
       {/* movie details */}
 
