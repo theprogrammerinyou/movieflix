@@ -1,97 +1,97 @@
-import { View, Text, TouchableOpacity, ScrollView, Platform, StyleSheet } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {Bars3CenterLeftIcon, MagnifyingGlassIcon} from 'react-native-heroicons/outline'
-import TrendingMovies from '../components/trendingMovies';
-import MovieList from '../components/movieList';
-import { StatusBar } from 'expo-status-bar';
-import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from '../api/moviedb';
-import { useNavigation } from '@react-navigation/native';
-import Loading from '../components/loading';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  StyleSheet,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Bars3CenterLeftIcon,
+  MagnifyingGlassIcon,
+} from "react-native-heroicons/outline";
+import Movies from "../components/Movies";
+import { StatusBar } from "expo-status-bar";
+import { fetchMoviesList } from "../api/moviedb";
+import { useNavigation } from "@react-navigation/native";
+import Loading from "../components/loading";
 
-const ios = Platform.OS === 'ios';
+const ios = Platform.OS === "ios";
 
 export default function HomeScreen() {
-
-  const [trending, setTrending] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
-  const [topRated, setTopRated] = useState([]);
+  const [moviesList, setMoviesList] = useState([]);
+  const [year, setYear] = useState(2012);
   const [loading, setLoading] = useState(true);
+
   const navigation = useNavigation();
 
-  useEffect(()=>{
-    getTrendingMovies();
-    getUpcomingMovies();
-    getTopRatedMovies();
-  },[]);
+  useEffect(() => {
+    getMoviesList({ years: year, prevYear: false });
+  }, []);
 
-  const getTrendingMovies = async ()=>{
+  const getMoviesList = async ({ years = 2012, prevYear }) => {
     try {
-      const data = await fetchTrendingMovies();
-      console.log('got trending', data.results.length)
-      if (data && data.results) setTrending(data.results);
-      setLoading(false)
-    } catch(error) {
-      console.error('error getting trending movies: ',error);
-      setLoading(false)
-    }
-  }
-  const getUpcomingMovies = async ()=>{
-    try {
-      const data = await fetchUpcomingMovies();
-      console.log('got upcoming', data.results.length)
-      if(data && data.results) setUpcoming(data.results);
-    } catch(error) {
-      console.error("error getting upcoming movies:", error);
-      setLoading(false)
-    }
-
-  }
-  const getTopRatedMovies = async ()=>{
-    try {
-      const data = await fetchTopRatedMovies();
-      console.log('got top rated', data.results.length)
-      if(data && data.results) setTopRated(data.results);
-    } catch(error) {
-      console.error("error getting top rated movies:", error);
+      const data = await fetchMoviesList(years);
+      if (data?.results && prevYear)
+        setMoviesList([...data.results, ...moviesList]);
+      if (data?.results && !prevYear)
+        setMoviesList([...moviesList, ...data.results]);
+      setLoading(false);
+    } catch (error) {
       setLoading(false);
     }
-  }
+  };
+
+  const getNextYearsMovies = () => {
+    setYear((prevYear) => prevYear + 1);
+    getMoviesList({ years: year + 1, prevYear: false });
+  };
+
+  const getPreviousYearsMovies = (event) => {
+    if (event.nativeEvent.contentOffset.y <= 0) {
+      setYear((prevYear) => prevYear - 1);
+      getMoviesList({ years: year - 1, prevYear: true });
+    }
+  };
 
   return (
     <View style={styles.container}>
       {/* search bar */}
-      <SafeAreaView className={ios? "-mb-2": "mb-3"}>
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
         <StatusBar style="auto" />
-        <View className="flex-row justify-between items-center mx-4">
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginHorizontal: 20,
+          }}
+        >
           <Bars3CenterLeftIcon size="30" strokeWidth={2} color="black" />
-          <Text style={styles.textStyles}>
-              Movies
-          </Text>
-          <TouchableOpacity onPress={()=> navigation.navigate('Search')}>
+          <Text style={styles.textStyles}>Movies</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Search")}>
             <MagnifyingGlassIcon size="30" strokeWidth={2} color="black" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-      {
-        loading? (
-          <Loading />
-        ):(
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 10}}
-          >
-            {/* Trending Movies Carousel */}
-            { trending.length>0 && <TrendingMovies data={trending} /> }
-            {/* upcoming movies row */}
-            { upcoming.length>0 && <MovieList title="Upcoming" data={upcoming} /> }
-            {/* top-rated movies row */}
-            { topRated.length>0 && <MovieList title="Top Rated" data={topRated} /> }
-          </ScrollView>
-        )
-      }
-  </View>
-  )
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          {/* Movies List */}
+          {moviesList.length > 0 && (
+            <Movies
+              data={moviesList}
+              getPreviousYearsMovies={getPreviousYearsMovies}
+              year={year}
+              getNextYearsMovies={getNextYearsMovies}
+            />
+          )}
+        </>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -103,5 +103,5 @@ const styles = StyleSheet.create({
     color: "#242424",
     fontSize: 30,
     fontWeight: "bold",
-  }
-})
+  },
+});

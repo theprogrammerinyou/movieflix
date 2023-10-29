@@ -3,10 +3,8 @@ import { apiKey } from "../constants";
 
 // endpoints
 const apiBaseUrl = "https://api.themoviedb.org/3";
-const trendingMoviesEndpoint = `${apiBaseUrl}/trending/movie/day?api_key=${apiKey}`;
-const upcomingMoviesEndpoint = `${apiBaseUrl}/movie/upcoming?api_key=${apiKey}`;
-const topRatedMoviesEndpoint = `${apiBaseUrl}/movie/top_rated?api_key=${apiKey}`;
-const searchMoviesEndpoint = `${apiBaseUrl}/search/movie?api_key=${apiKey}`;
+const fetchMoviesEndpoint = `${apiBaseUrl}/discover/movie?api_key=${apiKey}&sort_by=popularity.desc&page=1&vote_count_gte=100&include_video=true`;
+const searchMoviesEndpoint = `${apiBaseUrl}/search/movie?api_key=${apiKey}&sort_by=popularity.desc&page=1&vote_count_gte=100&include_video=true`;
 
 // endpoints with dynamic params
 
@@ -38,31 +36,23 @@ export const fallbackMoviePoster =
 export const fallbackPersonImage =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmUiF-YGjavA63_Au8jQj7zxnFxS_Ay9xc6pxleMqCxH92SzeNSjBTwZ0l61E4B3KTS7o&usqp=CAU";
 
-const apiCall = async (endpoint, params) => {
+const apiCall = async (endpoint, fetchYear, params) => {
   const options = {
     method: "GET",
-    url: endpoint,
+    url: endpoint + `&primary_release_year=${fetchYear}`,
     params: params ? params : {},
   };
-
   try {
     const response = await axios.request(options);
     return response.data;
   } catch (error) {
-    console.log("error: ", error);
     return {};
   }
 };
 
 // home screen apis
-export const fetchTrendingMovies = () => {
-  return apiCall(trendingMoviesEndpoint);
-};
-export const fetchUpcomingMovies = () => {
-  return apiCall(upcomingMoviesEndpoint);
-};
-export const fetchTopRatedMovies = () => {
-  return apiCall(topRatedMoviesEndpoint);
+export const fetchMoviesList = (fetchYear) => {
+  return apiCall(fetchMoviesEndpoint, fetchYear);
 };
 
 // movie screen apis

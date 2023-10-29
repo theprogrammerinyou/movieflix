@@ -5,12 +5,13 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  StyleSheet,
   Platform,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeftIcon, ChevronLeftIcon } from "react-native-heroicons/outline";
+import { ChevronLeftIcon } from "react-native-heroicons/outline";
 import { HeartIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Cast from "../components/cast";
@@ -22,11 +23,9 @@ import {
   fetchSimilarMovies,
   image500,
 } from "../api/moviedb";
-import { styles, theme } from "../theme";
 import Loading from "../components/loading";
 
 const ios = Platform.OS == "ios";
-const topMargin = ios ? "" : " mt-3";
 var { width, height } = Dimensions.get("window");
 
 export default function MovieScreen() {
@@ -47,7 +46,6 @@ export default function MovieScreen() {
 
   const getMovieDetials = async (id) => {
     const data = await fetchMovieDetails(id);
-    console.log("got movie details");
     setLoading(false);
     if (data) {
       setMovie({ ...movie, ...data });
@@ -55,14 +53,12 @@ export default function MovieScreen() {
   };
   const getMovieCredits = async (id) => {
     const data = await fetchMovieCredits(id);
-    console.log("got movie credits");
     if (data && data.cast) {
       setCast(data.cast);
     }
   };
   const getSimilarMovies = async (id) => {
     const data = await fetchSimilarMovies(id);
-    console.log("got similar movies");
     if (data && data.results) {
       setSimilarMovies(data.results);
     }
@@ -70,27 +66,35 @@ export default function MovieScreen() {
   return (
     <ScrollView
       contentContainerStyle={{ paddingBottom: 20 }}
-      className="flex-1 bg-neutral-900"
+      style={{ backgroundColor: "#C2DBD8", flex: 1 }}
     >
       {/* back button and movie poster */}
       <View className="w-full">
         <SafeAreaView
-          className={
-            "absolute z-20 w-full flex-row justify-between items-center px-4 " +
-            topMargin
-          }
+          style={{
+            position: "absolute",
+            zIndex: 20,
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 20,
+            marginTop: ios ? 0 : 20,
+          }}
         >
           <TouchableOpacity
-            style={styles.background}
-            className="rounded-xl p-1"
+            style={{
+              borderRadius: 20,
+              padding: 10,
+            }}
             onPress={() => navigation.goBack()}
           >
-            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="black" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleFavourite(!isFavourite)}>
             <HeartIcon
               size="35"
-              color={isFavourite ? theme.background : "white"}
+              color={isFavourite ? "red" : "white"}
             />
           </TouchableOpacity>
         </SafeAreaView>
@@ -99,22 +103,21 @@ export default function MovieScreen() {
         ) : (
           <View>
             <Image
-              // source={require('../assets/images/moviePoster2.png')}
               source={{
                 uri: image500(movie.poster_path) || fallbackMoviePoster,
               }}
               style={{ width, height: height * 0.55 }}
             />
             <LinearGradient
-              colors={[
-                "transparent",
-                "rgba(23, 23, 23, 0.8)",
-                "rgba(23, 23, 23, 1)",
-              ]}
-              style={{ width, height: height * 0.4 }}
+              colors={["transparent", "#D8E2E766", "rgb(194, 219, 216)"]}
+              style={{
+                width,
+                height: height * 0.4,
+                position: "absolute",
+                bottom: 0,
+              }}
               start={{ x: 0.5, y: 0 }}
               end={{ x: 0.5, y: 1 }}
-              className="absolute bottom-0"
             />
           </View>
         )}
@@ -124,26 +127,53 @@ export default function MovieScreen() {
 
       <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
         {/* title */}
-        <Text className="text-white text-center text-3xl font-bold tracking-widest">
+        <Text
+          style={{
+            color: "black",
+            fontSize: 24,
+            fontWeight: "bold",
+            textAlign: "center",
+            letterSpacing: 1,
+          }}
+        >
           {movie?.title}
         </Text>
 
         {/* status, release year, runtime */}
         {movie?.id ? (
-          <Text className="text-neutral-400 font-semibold text-base text-center">
+          <Text
+            style={{
+              fontWeight: "400",
+              fontSize: 16,
+              lineHeight: 20,
+              color: "black",
+              textAlign: "center",
+            }}
+          >
             {movie?.status} • {movie?.release_date?.split("-")[0] || "N/A"} •{" "}
             {movie?.runtime} min
           </Text>
         ) : null}
 
         {/* genres  */}
-        <View className="flex-row justify-center mx-4 space-x-2">
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginHorizontal: 4,
+            marginLeft: 2,
+          }}
+        >
           {movie?.genres?.map((genre, index) => {
             let showDot = index + 1 != movie.genres.length;
             return (
               <Text
                 key={index}
-                className="text-neutral-400 font-semibold text-base text-center"
+                style={{
+                  fontWeight: "400",
+                  color: "black",
+                  textAlign: "center",
+                }}
               >
                 {genre?.name} {showDot ? "•" : null}
               </Text>
@@ -152,7 +182,15 @@ export default function MovieScreen() {
         </View>
 
         {/* description */}
-        <Text className="text-neutral-400 mx-4 tracking-wide">
+        <Text
+          style={{
+            fontWeight: "400",
+            color: "black",
+            textAlign: "center",
+            marginHorizontal: 16,
+            letterSpacing: 1,
+          }}
+        >
           {movie?.overview}
         </Text>
       </View>
@@ -173,3 +211,5 @@ export default function MovieScreen() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({});

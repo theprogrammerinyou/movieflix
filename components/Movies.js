@@ -1,40 +1,34 @@
 import {
-  Dimensions,
   Image,
-  Text,
   TouchableWithoutFeedback,
-  View,
   StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import React from "react";
-import Carousel from "react-native-snap-carousel";
 import { useNavigation } from "@react-navigation/native";
 import { image500 } from "../api/moviedb";
 
-const { width, height } = Dimensions.get("window");
-
-export default function TrendingMovies({ data }) {
+const { width, height} = Dimensions.get("window");
+export default function TrendingMovies({ data, getPreviousYearsMovies, getNextYearsMovies }) {
   const navigation = useNavigation();
 
   const handleClick = (item) => {
     navigation.navigate("Movie", item);
   };
+
   return (
-    <View style={style.container}>
-      <Text style={style.trendingTextStyle}>Trending</Text>
-      <Carousel
-        data={data}
-        renderItem={({ item }) => (
-          <MovieCard handleClick={handleClick} item={item} />
-        )}
-        firstItem={1}
-        inactiveSlideOpacity={0.6}
-        sliderWidth={width}
-        layout={"default"}
-        itemWidth={width * 0.62}
-        slideStyle={{ display: "flex", alignItems: "center" }}
-      />
-    </View>
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
+      numColumns={2}
+      renderItem={({ item }) => <MovieCard handleClick={handleClick} item={item} />}
+      onEndReached={getNextYearsMovies}
+      onScroll={getPreviousYearsMovies}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={<ActivityIndicator size="large" />}
+    />
   );
 }
 
@@ -61,8 +55,13 @@ const style = StyleSheet.create({
     marginBottom: 10,
   },
   imageStyle: {
-    width: width * 0.6,
+    width: width * 0.45,
     height: height * 0.4,
     borderRadius: 30,
+    backgroundColor: 'white',
+    borderWidth: 0,
+    margin: 10,
+    padding: 10,
+    borderColor: '#808080',
   },
 });

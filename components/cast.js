@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   title: {
-    color: 'white',
+    color: 'black',
     fontSize: 18,
     marginHorizontal: 16,
     marginBottom: 20,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   characterText: {
-    color: 'white',
+    color: 'black',
     fontSize: 12,
     marginTop: 4,
   },
