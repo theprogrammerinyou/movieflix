@@ -54,7 +54,7 @@ export default function HomeScreen() {
       );
       setLoading(false);
     } catch (error) {
-      console.log("Error getting genres: " + error);
+      console.error("Error getting genres: " + error);
       setLoading(false);
     }
   };
@@ -62,10 +62,8 @@ export default function HomeScreen() {
   const getMoviesList = async ({ genre, years = 2012, prevYear }) => {
     try {
       const data = await fetchMoviesList({ genre, years });
-      console.log("data", data.results.length);
       if (data?.results) {
         // Set the updated movies list
-        console.log("value", value, data.results.length);
         if (value) setMoviesList(data.results);
         else
           setMoviesList(
@@ -87,7 +85,7 @@ export default function HomeScreen() {
 
   const getPreviousYearsMovies = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    scrollOffset.current = offsetY;
+    // scrollOffset.current = offsetY;
     if (offsetY <= 0) {
       setYear((prevYear) => prevYear - 1);
       getMoviesList({ years: year - 1, prevYear: true });
@@ -119,7 +117,14 @@ export default function HomeScreen() {
       ) : (
         <>
           {/* Clear Filter Button */}
-          <View style={{ flexDirection: "row", alignItems: "center", zIndex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              zIndex: 1,
+              marginLeft: 10,
+            }}
+          >
             <TouchableOpacity
               onPress={() => {
                 setValue(null);
@@ -147,8 +152,6 @@ export default function HomeScreen() {
                 width: 150,
                 borderRadius: 22,
                 marginLeft: 15,
-                position: "absolute",
-                zIndex: 1, // Ensure it appears above other content
               }}
               closeOnBackPressed={true}
               placeholderStyle={{
@@ -160,7 +163,7 @@ export default function HomeScreen() {
           {/* Movies List */}
           {moviesList.length > 0 && (
             <Movies
-              data={[...new Set(moviesList)]}
+              data={moviesList}
               getPreviousYearsMovies={getPreviousYearsMovies}
               year={year}
               scrollOffset={scrollOffset}
