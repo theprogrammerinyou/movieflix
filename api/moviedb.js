@@ -36,7 +36,7 @@ export const fallbackMoviePoster =
 export const fallbackPersonImage =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmUiF-YGjavA63_Au8jQj7zxnFxS_Ay9xc6pxleMqCxH92SzeNSjBTwZ0l61E4B3KTS7o&usqp=CAU";
 
-const apiCall = async ({ endpoint, genre, fetchYear, params }) => {
+const apiCall = async ({ endpoint, genre, fetchYear = 2012, params }) => {
   const yearAndGenres =
     (fetchYear ? `&primary_release_year=${fetchYear}` : "") +
     (genre ? `&with_genres=${genre}` : "");
@@ -45,6 +45,7 @@ const apiCall = async ({ endpoint, genre, fetchYear, params }) => {
     url: endpoint + yearAndGenres.trim(),
     params: params ? params : {},
   };
+
   try {
     const response = await axios.request(options);
     return response.data;

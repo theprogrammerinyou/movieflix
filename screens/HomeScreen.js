@@ -59,17 +59,20 @@ export default function HomeScreen() {
     }
   };
 
-  const getMoviesList = async ({ genre, years = 2012, prevYear }) => {
+  const getMoviesList = async ({ genre, prevYear }) => {
     try {
-      const data = await fetchMoviesList({ genre, years });
+      const data = await fetchMoviesList({
+        genre,
+        fetchYear: prevYear ? year - 1 : year + 1,
+      });
       if (data?.results) {
         // Set the updated movies list
         if (value) setMoviesList(data.results);
         else
           setMoviesList(
             prevYear
-              ? [...data.results, ...moviesList]
-              : [...moviesList, ...data.results]
+              ? [...new Set([...data.results, ...moviesList])].sort()
+              : [...new Set([...moviesList, ...data.results])].sort()
           );
       }
       setLoading(false);
@@ -79,16 +82,15 @@ export default function HomeScreen() {
   };
 
   const getNextYearsMovies = () => {
+    getMoviesList({ prevYear: false });
     setYear((prevYear) => prevYear + 1);
-    getMoviesList({ years: year + 1, prevYear: false });
   };
 
   const getPreviousYearsMovies = (event) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    // scrollOffset.current = offsetY;
     if (offsetY <= 0) {
       setYear((prevYear) => prevYear - 1);
-      getMoviesList({ years: year - 1, prevYear: true });
+      getMoviesList({ prevYear: true });
     }
   };
 
@@ -128,7 +130,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               onPress={() => {
                 setValue(null);
-                getMoviesList({ years: year, prevYear: false });
+                getMoviesList({ prevYear: false });
               }}
             >
               <XCircleIcon size="30" strokeWidth={2} color="black" />
